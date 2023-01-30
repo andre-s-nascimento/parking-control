@@ -1,0 +1,22 @@
+application:
+    title: parking-control
+spring:
+    config:
+        import: optional:file:.env[.properties]
+    datasource:
+        password: ${POSTGRES_PASSWORD}
+        url: jdbc:postgresql://localhost:5433/${POSTGRES_DB}
+        username: ${POSTGRES_USER}
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                jdbc:
+                    lob:
+                        non_contextual_creation: true
+    output:
+        ansi:
+            enabled: always
+    main:
+        allow-bean-definition-overriding: true
