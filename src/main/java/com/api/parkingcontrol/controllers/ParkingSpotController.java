@@ -4,6 +4,10 @@ import com.api.parkingcontrol.dtos.ParkingSpotDto;
 import com.api.parkingcontrol.models.ParkingSpotModel;
 import com.api.parkingcontrol.services.ParkingSpotService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -16,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +44,20 @@ public class ParkingSpotController {
     this.parkingSpotService = parkingSpotService;
   }
 
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   @PostMapping
+  @Operation(summary = "Salva uma nova vaga",
+      description = "Salva uma nova vaga de estacionamento")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201",
+          description = "Retorna a vaga salva",
+          content = @Content(mediaType = "application/json",
+          schema = @Schema(implementation = ParkingSpotModel.class))
+      ),
+      @ApiResponse(responseCode = "409",
+      description = "Conflitos: Placa do Carro ou Vaga já em uso ou Vaga já registrada para o Apartamento e Bloco "
+      )
+  }  )
   public ResponseEntity<Object> saveParkingSpot(@RequestBody @Valid ParkingSpotDto parkingSpotDto) {
     if (parkingSpotService.existsByLicensePlateCar(parkingSpotDto.getLicensePlateCar())) {
       return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -62,16 +80,40 @@ public class ParkingSpotController {
         .body(parkingSpotService.save(parkingSpotModel));
   }
 
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
   @GetMapping
+  @Operation(summary = "Retorna todas as Vagas de Estacionamento",
+      description = "Retorna todas as Vagas de Estacionamento")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200",
+          description = "OK",
+          content = @Content(mediaType = "application/json",
+              schema = @Schema(implementation = ParkingSpotModel.class))
+      ),
+      @ApiResponse(responseCode = "404",
+          description = "Não foi encontrada nenhuma vaga cadastrada"
+      )
+  }  )
   public ResponseEntity<Page<ParkingSpotModel>> getAllParkingSpots(
       @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC)
           Pageable pageable) {
     return ResponseEntity.status(HttpStatus.OK).body(parkingSpotService.findAll(pageable));
   }
 
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
   @GetMapping("/{id}")
-  @Operation(summary = "Find parking spot by id",
-      description = "This has security issues to be addressed")
+  @Operation(summary = "Retorna uma Vaga de Estacionamento por id",
+      description = "Retorna uma Vaga de Estacionamento, buscando por id")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200",
+          description = "OK",
+          content = @Content(mediaType = "application/json",
+              schema = @Schema(implementation = ParkingSpotModel.class))
+      ),
+      @ApiResponse(responseCode = "404",
+          description = "Não foi encontrada vaga para o id informado"
+      )
+  }  )
   public ResponseEntity<Object> getOneParkingSpot(@PathVariable(value = "id") UUID id) {
     Optional<ParkingSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
     if (!parkingSpotModelOptional.isPresent()) {
@@ -80,7 +122,20 @@ public class ParkingSpotController {
     return ResponseEntity.status(HttpStatus.OK).body(parkingSpotModelOptional.get());
   }
 
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   @DeleteMapping("/{id}")
+  @Operation(summary = "Apaga uma Vaga de Estacionamento por id",
+      description = "Apaga uma Vaga de Estacionamento que tenha o id informado")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200",
+          description = "OK",
+          content = @Content(mediaType = "application/json",
+              schema = @Schema(implementation = ParkingSpotModel.class))
+      ),
+      @ApiResponse(responseCode = "404",
+          description = "Não foi encontrada vaga para o id informado"
+      )
+  }  )
   public ResponseEntity<Object> deleteParkingSpot(@PathVariable(value = "id") UUID id) {
     Optional<ParkingSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
     if (!parkingSpotModelOptional.isPresent()) {
@@ -90,7 +145,20 @@ public class ParkingSpotController {
     return ResponseEntity.status(HttpStatus.OK).body("Parking Spot deleted successfully.");
   }
 
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   @PutMapping("/{id}")
+  @Operation(summary = "Atualiza dados uma Vaga de Estacionamento por id",
+      description = "Atualiza dados de uma Vaga de Estacionamento, buscando por id")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200",
+          description = "OK",
+          content = @Content(mediaType = "application/json",
+              schema = @Schema(implementation = ParkingSpotModel.class))
+      ),
+      @ApiResponse(responseCode = "404",
+          description = "Não foi encontrada vaga para o id informado"
+      )
+  }  )
   public ResponseEntity<Object> updateParkingSpot(
       @PathVariable(value = "id") UUID id, @RequestBody @Valid ParkingSpotDto parkingSpotDto) {
     Optional<ParkingSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
