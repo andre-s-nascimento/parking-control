@@ -3,6 +3,7 @@ package com.api.parkingcontrol.controllers;
 import com.api.parkingcontrol.dtos.ParkingSpotDto;
 import com.api.parkingcontrol.models.ParkingSpotModel;
 import com.api.parkingcontrol.services.ParkingSpotService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -69,6 +70,8 @@ public class ParkingSpotController {
   }
 
   @GetMapping("/{id}")
+  @Operation(summary = "Find parking spot by id",
+      description = "This has security issues to be addressed")
   public ResponseEntity<Object> getOneParkingSpot(@PathVariable(value = "id") UUID id) {
     Optional<ParkingSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
     if (!parkingSpotModelOptional.isPresent()) {

@@ -1,5 +1,6 @@
 package com.api.parkingcontrol.models;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,6 +18,7 @@ import lombok.Setter;
 @Table(name = "TB_PARKING_SPOT")
 @Getter
 @Setter
+@Schema(description="All details about the parking spot. ")
 public class ParkingSpotModel implements Serializable {
 
   @Serial
@@ -25,6 +27,7 @@ public class ParkingSpotModel implements Serializable {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private UUID id;
 
+  @Schema(description = "parkingSpotNumber should have less than 10 characters")
   @Column(nullable = false, unique = true, length = 10)
   private String parkingSpotNumber;
 
