@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3400)
-@RequestMapping("/parking-spot")
+@RequestMapping("/api/v1/parking-spot")
 public class ParkingSpotController {
 
   // ponto de injecao do service no controller

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3400)
-@RequestMapping("/user")
+@RequestMapping("/api/v1/user")
 public class UserController {
   @Autowired
   UserService userService;
